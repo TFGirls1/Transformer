@@ -2,10 +2,7 @@
 #include<string>
 #include<map>
 #include<set>
-using String = std::u32string;
-using Char = char32_t;
-using uInt = __uint128t;
-using Int = __int128_t;
+#include "TFdef.h"
 class BPE{
 private:
 	std::map<String, int> Freq; //subword的频率
@@ -33,12 +30,9 @@ public:
 		}
 	}
 	/*
-		"ab" -> [a,b]
-		for auto [word, freq] Freq
-			for auto i : word
-				if(word[i] == a && word[i + 1] == b) {
-
-				} 
+		[1,2,3,1,4,2,3]
+		->
+		[1,5,1,4,5]
 	*/
 	void get_stats() {
 		for(auto& [word, freq] : Freq) {
