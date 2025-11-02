@@ -1,10 +1,21 @@
 #include<bits/stdc++.h>
 #include "TFdef.h"
-class BPE{
+
+class BPE {
 private:
-	std::map<String, int> Freq; //subword的频率
-	std::set<String> Words;
-	std::map<String, std::vector<String> > Subword;
+    std::map<String, int> Freq; //subword的频率
+    std::set<String> Words;
+    std::map<String, std::vector<String>> Subword;
+
+    // 辅助函数：将 std::string (UTF-8) 转换为 String (UTF-32)
+    static String to_internal_string(const std::string& utf8_str) {
+        return String::from_utf8(utf8_str);
+    }
+
+    // 辅助函数：将 String (UTF-32) 转换为 std::string (UTF-8)
+    static std::string to_external_string(const String& internal_str) {
+        return internal_str.to_utf8();
+    }
 public:
 	int Vocab_Size = 200010;
 	const Char Emp = 998244353;
@@ -13,9 +24,10 @@ public:
 	void get_vocab(const String& text, const std::set<Char>& Punc) { //从文本开始生成单个word
 		int siz = (int)text.size();
 		String cur;
+		cur.clear();
 		for(int i = 0; i < siz; i ++) {
 			cur += text[i];
-			if(!Punc.count(text[i])) {
+			if(Punc.count(text[i])) {
 				cur.pop_back();
 				Words.insert(cur);
 				cur.clear();
@@ -100,6 +112,10 @@ public:
 		if(text.empty()) return;
 		get_vocab(text, Punc);
 		std::cerr << Words.size() << " words loaded.\n";
+		for(auto& i : Words) {
+			std::cerr << i << "\n";
+		}
+		std::cerr << "\n";
 		get_stats();
 		while((int)Freq.size() < Vocab_Size) {
 			std::map< std::pair<String, String>, int> pairs = get_pairs();
@@ -133,18 +149,27 @@ public:
 			}
 		}
 	}
-	void import_token(const json& tokens) {
-		if(tokens.is_null()) return;
-		for (auto& [_key, value] : tokens.items()) {
-			String key = UnivStr::from_utf8(_key);
-			if(!Token[key][0]){
-				Token[key][0] = ++ Indx;
-			}
-			Token[key][1] += static_cast<int>(value[1]);
-		}
-	}
-	json export_token() {
-		json tokens(Token);
-		return tokens;
-	}
+    void import_token(const json& tokens) {
+        if(tokens.is_null()) return;
+        for (auto& [key_utf8, value] : tokens.items()) {
+            // 从 UTF-8 (json string) 转换为 String (UTF-32)
+            String key = UnivStr::from_utf8(key_utf8);
+            if(!Token[key][0]){
+                Token[key][0] = ++Indx;
+            }
+            if(value.is_array() && value.size() >= 2) {
+                Token[key][1] += static_cast<int>(value[1]);
+            }
+        }
+    }
+
+    json export_token() {
+        json tokens = json::object();
+        for(const auto& [key, value] : Token) {
+            // 从 String (UTF-32) 转换回 UTF-8 用于 JSON
+            std::string key_utf8 = key.to_utf8();
+            tokens[key_utf8] = {value[0], value[1]};
+        }
+        return tokens;
+    }
 };
