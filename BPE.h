@@ -46,6 +46,7 @@ public:
 			for(int i = 0; i < siz; i ++) {
 				String tmp;
 				tmp += word[i];
+				if(i == siz - 1) tmp += Emp;
 				Subword[word].push_back(tmp);
 				Freq[tmp] ++;
 			}
