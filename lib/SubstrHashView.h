@@ -3,6 +3,7 @@
 #include <cctype>
 #include <iostream>
 #include <string_view>
+#include <concepts>
 #include "../TFdef.h"
 
 // An iterator that generates rolling hash values for substrings   
@@ -11,13 +12,13 @@ private:
 	std::string_view str_;
 	size_t current_pos_;
 	unsigned int round;
-	static constexpr ull M1 = 1000000007;
-	static constexpr ull M2 = 1000000009;
-	static constexpr ull B1 = 131;
-	static constexpr ull B2 = 1331;
+	static constexpr ui64 M1 = 1000000007;
+	static constexpr ui64 M2 = 1000000009;
+	static constexpr ui64 B1 = 131;
+	static constexpr ui64 B2 = 1331;
 	static constexpr uInt Shift = uInt(1) << 64;
-	ull H1, H2;
-	
+	ui64 H1, H2;
+
 public:
 	using iterator_category = std::forward_iterator_tag;
 	using value_type = size_t;
@@ -57,21 +58,31 @@ public:
 };
 
 // A view that generates rolling hash values for all substrings of a given string
-class SubstringHashView : public std::ranges::view_interface<SubstringHashView> {
+class SubstringHashView {
 private:
-	std::string_view str_;
-	
+    std::string_view str_;
+    
 public:
-	SubstringHashView() = default;
-	SubstringHashView(std::string_view str)
-	: str_(str) {}
-	
-	auto begin() const {
-		return SubstringHashIterator(str_, 0, 0);
-	}
-	
-	auto end() const {
-		return SubstringHashIterator(str_, 0, str_.length());
-	}
-	
+    // C++23: Using auto parameters for better generic code
+    SubstringHashView() = default;
+    explicit SubstringHashView(std::string_view str) noexcept
+        : str_(str) {}
+    
+    // Range interface
+    [[nodiscard]] auto begin() const noexcept {
+        return SubstringHashIterator(str_, 0, 0);
+    }
+    
+    [[nodiscard]] auto end() const noexcept {
+        return SubstringHashIterator(str_, 0, str_.length());
+    }
+    
+    // C++23: Additional range operations
+    [[nodiscard]] bool empty() const noexcept { 
+        return str_.empty(); 
+    }
+    
+    [[nodiscard]] auto size() const noexcept { 
+        return str_.length(); 
+    }
 };
