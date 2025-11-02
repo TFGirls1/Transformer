@@ -43,7 +43,7 @@ public:
 	void get_stats() {
 		for(auto word: Words) {
 			int siz = (int)word.size();
-			for(int i = 0; i < siz - 1; i ++) {
+			for(int i = 0; i < siz; i ++) {
 				String tmp;
 				tmp += word[i];
 				Subword[word].push_back(tmp);
@@ -80,7 +80,7 @@ public:
 	void merge_pair(const std::pair<String, String>& Subpair) {
 		//记录合并操作
 		for(auto word: Words) {
-			for(int i = 0; i < (int)Subword[word].size() - 2; i ++) {
+			for(int i = 0; i < (int)Subword[word].size() - 1; i ++) {
 				if(std::make_pair(Subword[word][i], Subword[word][i + 1]) == Subpair) {
 					String New_Subword = Subpair.first + Subpair.second;
 					Subword[word][i] = New_Subword;
@@ -111,7 +111,7 @@ public:
 	/*
 	接下来我们考虑去做token映射
 	*/
-	void token_encode(){
+	void token_encode() {
 		int idx = (int)Token.size();
 		for(auto& p: Freq){
 			Token[p.first] = {idx++, p.second};
