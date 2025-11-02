@@ -21,7 +21,7 @@ int main() {
     std::set<Char> Punc;
     String punc;
     getline(punc_f, punc);
-    std::cerr << punc << "\n";
+    // std::cerr << punc << "\n";
     std::cerr << punc.size() << " punctuation characters loaded.\n";
     for(auto& i : punc){
         Punc.insert(i);
@@ -31,7 +31,7 @@ int main() {
     while(1) {
         String para;
         if(!getline(text_f, para)) break;
-        std::cerr << para.to_utf8() << "\n";
+        // std::cerr << para.to_utf8() << "\n";
         text_f.open("data/tokens.json", std::ios::in);
         json tokens;
         read_token(tokens);
@@ -40,10 +40,11 @@ int main() {
         /*删*/
         bpe.train_BPE(para, Punc);
         std::cerr << bpe.Amount_Subword() << " subwords trained.\n";
+        bpe.token_encode();
         json a = bpe.export_token();
-        for(auto& [key, value] : a.items()) {
-            std::cerr << key << ": " << value[0]<< " " << value[1] << "\n";
-        }
+        // for(auto& [key, value] : a.items()) {
+        //     std::cerr << key << ": " << value[0]<< " " << value[1] << "\n";
+        // }
         o << std::setw(4) << bpe.export_token() << std::endl;
         /*输出json */
     }

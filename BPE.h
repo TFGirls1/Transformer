@@ -60,6 +60,7 @@ public:
 				String tmp;
 				tmp += word[i];
 				if(i == siz - 1) tmp += Emp;
+
 				Subword[word].push_back(tmp);
 				Freq[tmp] ++;
 			}
@@ -112,10 +113,10 @@ public:
 		if(text.empty()) return;
 		get_vocab(text, Punc);
 		std::cerr << Words.size() << " words loaded.\n";
-		for(auto& i : Words) {
-			std::cerr << i << "\n";
-		}
-		std::cerr << "\n";
+		// for(auto& i : Words) {
+		// 	std::cerr << i << "\n";
+		// }
+		// std::cerr << "\n";
 		get_stats();
 		while((int)Freq.size() < Vocab_Size) {
 			std::map< std::pair<String, String>, int> pairs = get_pairs();
@@ -132,7 +133,9 @@ public:
 	*/
 	void token_encode() {
 		for(auto& p: Freq){
-			Token[p.first] = {++ Indx, p.second};
+			if(!Token.count(p.first))
+				Token[p.first] = {++ Indx, p.second};
+			else Token[p.first][1] += p.second;
 		}
 	}
 	void token_decode(const String& text, std::vector<int>& token_text, const std::set<Char>& Punc) {
@@ -169,6 +172,7 @@ public:
             // 从 String (UTF-32) 转换回 UTF-8 用于 JSON
             std::string key_utf8 = key.to_utf8();
             tokens[key_utf8] = {value[0], value[1]};
+			// std::cerr << key_utf8 << ": " << value[0]<< " " << value[1] << "\n";
         }
         return tokens;
     }
