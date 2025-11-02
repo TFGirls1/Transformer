@@ -8,6 +8,7 @@ private:
 public:
 	int Vocab_Size = 200010;
 	const Char Emp = 998244353;
+	int Indx = 0;
 	std::map<String, std::pair<int, int> > Token;
 	void get_vocab(const String& text, const std::set<Char>& Punc) { //从文本开始生成单个word
 		int siz = (int)text.size();
@@ -113,9 +114,8 @@ public:
 	接下来我们考虑去做token映射
 	*/
 	void token_encode() {
-		int idx = 0;
 		for(auto& p: Freq){
-			Token[p.first] = {idx++, p.second};
+			Token[p.first] = {++ Indx, p.second};
 		}
 	}
 	void token_decode(const String& text, std::vector<int>& token_text, const std::set<Char>& Punc) {
@@ -131,5 +131,17 @@ public:
 				cur.clear();
 			}
 		}
+	}
+	void import_token(const json& tokens) {
+		for (auto& [key, value] : tokens.items()) {
+			if(!Token[key].first){
+				Token[key].first = ++ Indx;
+			}
+			Token[key].second += value[1];
+		}
+	}
+	json export_token() {
+		json tokens(Token);
+		return tokens;
 	}
 };
