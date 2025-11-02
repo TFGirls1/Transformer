@@ -2,11 +2,19 @@
 int main() {
     std::ifstream f("data/tokens.json");
     json tokens;
-    f >> tokens;
+    std::string temp;
+    f >> temp;
+    f.close();
+    f.open("data/tokens.json");
+    if(temp.empty()) {
+        tokens = json::object();
+    }else {
+        f >> tokens;
+    }
     f.close();
     BPE bpe;
     bpe.import_token(tokens);
-    std:: ifstream f("materials/punc.txt");
+    f.open("materials/punc.txt");
     std::set<Char> Punc;
     String punc;
     getline(f, punc);
@@ -17,7 +25,7 @@ int main() {
         Punc.insert(c);
     }
     f.close();
-    std:: ifstream f("materials/text.txt");
+    f.open("materials/text.txt");
     while(1) {
         String para;
         if(!getline(f, para)) break;

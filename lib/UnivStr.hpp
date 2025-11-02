@@ -147,12 +147,9 @@ inline std::istream& operator>>(std::istream& is, UnivStr& str) {
 }
 
 // getline for reading full lines of UTF-8 text
-inline std::istream& getline(std::istream& is, UnivStr& str, char32_t delim = U'\n') {
+inline std::istream& getline(std::istream& is, UnivStr& str) {
     std::string utf8_str;
-    // Convert delimiter to UTF-8
-    char utf8_delim = utf::to_utf8(std::u32string(1, delim))[0];
-    
-    if (std::getline(is, utf8_str, utf8_delim)) {
+    if (std::getline(is, utf8_str)) {
         str = UnivStr(utf8_str);
     } else {
         is.setstate(std::ios::failbit);

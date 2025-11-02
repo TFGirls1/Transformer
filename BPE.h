@@ -133,12 +133,13 @@ public:
 		}
 	}
 	void import_token(const json& tokens) {
+		if(tokens.is_null()) return;
 		for (auto& [_key, value] : tokens.items()) {
 			String key = UnivStr::from_utf8(_key);
 			if(!Token[key].first){
 				Token[key].first = ++ Indx;
 			}
-			Token[key].second += value[1];
+			Token[key].second += static_cast<int>(value[1]);
 		}
 	}
 	json export_token() {
