@@ -9,7 +9,7 @@ public:
 	int Vocab_Size = 200010;
 	const Char Emp = 998244353;
 	int Indx = 0;
-	std::map<String, std::pair<int, int> > Token;
+	std::map<String, std::array<int, 2> > Token;
 	void get_vocab(const String& text, const std::set<Char>& Punc) { //从文本开始生成单个word
 		int siz = (int)text.size();
 		String cur;
@@ -23,7 +23,7 @@ public:
 		}
 		if(cur.size()) {
 			if(Punc.count(cur.back())) cur.pop_back();
-			Words.insert(cur);
+			if(cur.size()) Words.insert(cur);
 		}
 	}
 	/*
@@ -99,6 +99,7 @@ public:
 	void train_BPE(const String& text, const std::set<Char>& Punc) {
 		if(text.empty()) return;
 		get_vocab(text, Punc);
+		std::cerr << Words.size() << " words loaded.\n";
 		get_stats();
 		while((int)Freq.size() < Vocab_Size) {
 			std::map< std::pair<String, String>, int> pairs = get_pairs();
@@ -127,7 +128,7 @@ public:
 			if(Punc.count(text[i]))
 				cur.clear();
 			if(Token.count(cur)) {
-				token_text.push_back(Token[cur].first);
+				token_text.push_back(Token[cur][0]);
 				cur.clear();
 			}
 		}
@@ -136,10 +137,10 @@ public:
 		if(tokens.is_null()) return;
 		for (auto& [_key, value] : tokens.items()) {
 			String key = UnivStr::from_utf8(_key);
-			if(!Token[key].first){
-				Token[key].first = ++ Indx;
+			if(!Token[key][0]){
+				Token[key][0] = ++ Indx;
 			}
-			Token[key].second += static_cast<int>(value[1]);
+			Token[key][1] += static_cast<int>(value[1]);
 		}
 	}
 	json export_token() {
