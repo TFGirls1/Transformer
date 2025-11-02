@@ -21,7 +21,7 @@ public:
 	const Char Emp = 998244353;
 	int Indx = 0;
 	std::map<String, std::array<int, 2> > Token;
-	void get_vocab(const String& text, const std::set<Char>& Punc) { //从文本开始生成单个word
+	void get_vocab(const String& text, const std::set<Char>& Punc) { //从文本开始生成单个word pre-tokenizer
 		int siz = (int)text.size();
 		String cur;
 		cur.clear();
@@ -55,6 +55,7 @@ public:
 	*/
 	void get_stats() {
 		for(auto word: Words) {
+			Subword[word].clear();
 			int siz = (int)word.size();
 			for(int i = 0; i < siz; i ++) {
 				String tmp;
@@ -109,9 +110,13 @@ public:
 			}
 		}
 	}
-	void train_BPE(const String& text, const std::set<Char>& Punc) {
-		if(text.empty()) return;
+	bool train_BPE(const String& text, const std::set<Char>& Punc) {
+		if(text.empty()) return true;
+		Words.clear();
 		get_vocab(text, Punc);
+		// for(auto& word : Words){
+		// 	std::cerr << "WORD: " << word.to_utf8() << "\n";
+		// }
 		std::cerr << Words.size() << " words loaded.\n";
 		// for(auto& i : Words) {
 		// 	std::cerr << i << "\n";
@@ -127,6 +132,7 @@ public:
 			std::pair<String, String> Subpair = max_pair.first;
 			merge_pair(Subpair);
 		}
+		return (int)Freq.size() < Vocab_Size;
 	}
 	/*
 	接下来我们考虑去做token映射
@@ -135,7 +141,7 @@ public:
 		for(auto& p: Freq){
 			if(!Token.count(p.first))
 				Token[p.first] = {++ Indx, p.second};
-			else Token[p.first][1] += p.second;
+			else Token[p.first][1] = p.second;
 		}
 	}
 	void token_decode(const String& text, std::vector<int>& token_text, const std::set<Char>& Punc) {
@@ -161,7 +167,8 @@ public:
                 Token[key][0] = ++Indx;
             }
             if(value.is_array() && value.size() >= 2) {
-                Token[key][1] += static_cast<int>(value[1]);
+                Token[key][1] = static_cast<int>(value[1]);
+				Freq[key] = static_cast<int>(value[1]);
             }
         }
     }
