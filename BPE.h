@@ -133,7 +133,8 @@ public:
 		}
 	}
 	void import_token(const json& tokens) {
-		for (auto& [key, value] : tokens.items()) {
+		for (auto& [_key, value] : tokens.items()) {
+			String key = UnivStr::from_utf8(_key);
 			if(!Token[key].first){
 				Token[key].first = ++ Indx;
 			}
