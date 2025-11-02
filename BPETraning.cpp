@@ -1,17 +1,15 @@
 #include"BPE.h"
 int main() {
     std::ifstream f("data/tokens.json");
-    std::ofstream o("data/tokens.json");
     json tokens;
     f >> tokens;
     f.close();
     BPE bpe;
     bpe.import_token(tokens);
-    std:: ifstream f("materials/text.txt");
-    std::u32string punc;
+    std:: ifstream f("materials/punc.txt");
     std::set<Char> Punc;
     String punc;
-    std::getline(f, punc);
+    getline(f, punc);
     for(auto& i : punc){
         Punc.insert(i);
     }
@@ -22,10 +20,13 @@ int main() {
     std:: ifstream f("materials/text.txt");
     while(1) {
         String para;
-        if(!std::getline(f, para)) break;
+        if(!getline(f, para)) break;
+        
+        std::ofstream o("data/tokens.json", std::ios::trunc);
+        /*删*/
         bpe.train_BPE(para, Punc);
         o << std::setw(4) << bpe.export_token() << std::endl;
-
+        /*输出json */
     }
     f.close();
     return 0;
