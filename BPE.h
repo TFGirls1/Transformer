@@ -113,7 +113,7 @@ public:
 	接下来我们考虑去做token映射
 	*/
 	void token_encode() {
-		int idx = (int)Token.size();
+		int idx = 0;
 		for(auto& p: Freq){
 			Token[p.first] = {idx++, p.second};
 		}
