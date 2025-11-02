@@ -80,7 +80,7 @@ public:
 	void merge_pair(const std::pair<String, String>& Subpair) {
 		//记录合并操作
 		for(auto word: Words) {
-			for(int i = 0; i < (int)Subword[word].size() - 1; i ++) {
+			for(int i = 0; i < (int)Subword[word].size() - 2; i ++) {
 				if(std::make_pair(Subword[word][i], Subword[word][i + 1]) == Subpair) {
 					String New_Subword = Subpair.first + Subpair.second;
 					Subword[word][i] = New_Subword;
@@ -88,13 +88,13 @@ public:
 					Freq[New_Subword] ++;
 					Freq[Subpair.first] --;
 					Freq[Subpair.second] --;
-					if(Freq[Subpair.first] == 0) Freq.erase(Subpair.first);
-					if(Freq[Subpair.second] == 0) Freq.erase(Subpair.second);
+					if(!Freq[Subpair.first]) Freq.erase(Subpair.first);
+					if(!Freq[Subpair.second]) Freq.erase(Subpair.second);
 				}
 			}
 		}
 	}
-	void train_PDE(const String& text, const std::set<Char>& Punc) {
+	void train_BPE(const String& text, const std::set<Char>& Punc) {
 		if(text.empty()) return;
 		get_vocab(text, Punc);
 		get_stats();
@@ -115,6 +115,20 @@ public:
 		int idx = (int)Token.size();
 		for(auto& p: Freq){
 			Token[p.first] = {idx++, p.second};
+		}
+	}
+	void token_decode(const String& text, std::vector<int>& token_text, const std::set<Char>& Punc) {
+		//将文本词汇变为token序列
+		int siz = (int)text.size();
+		String cur;
+		for(int i = 0; i < siz; i ++) {
+			cur += text[i];
+			if(Punc.count(text[i]))
+				cur.clear();
+			if(Token.count(cur)) {
+				token_text.push_back(Token[cur].first);
+				cur.clear();
+			}
 		}
 	}
 };
