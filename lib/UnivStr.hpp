@@ -6,7 +6,6 @@
 #include <bit>
 #include <array>
 
-// Modern UTF-8 conversion utilities (no deprecated components)
 namespace utf {
     // UTF-8 to UTF-32 conversion
     inline std::u32string to_utf32(std::string_view utf8) {
@@ -82,7 +81,6 @@ namespace utf {
     }
 }
 
-
 class UnivStr : public std::u32string {
 public:
     using std::u32string::u32string;
@@ -136,7 +134,6 @@ inline UnivStr operator+(char32_t lhs, const UnivStr& rhs) {
     return UnivStr(std::u32string(1, lhs) + static_cast<const std::u32string&>(rhs));
 }
 
-// Convert to UTF-8 for output
 // Stream operators for UTF-8 input/output
 inline std::ostream& operator<<(std::ostream& os, const UnivStr& str) {
     return os << str.to_utf8();
