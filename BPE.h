@@ -144,19 +144,38 @@ public:
 			else Token[p.first][1] = p.second;
 		}
 	}
-	void token_decode(const String& text, std::vector<int>& token_text, const std::set<Char>& Punc) {
+	bool translate(const String& cur, std::vector<int>& token_text) {
+		String tmp;
+		for(int i = 0; i < (int)cur.size(); i ++) {
+			tmp += cur[i];
+			if(Token.count(tmp)) {
+				token_text.push_back(Token[tmp][0]);
+				tmp.clear();
+			}
+		}
+		tmp += Emp;
+		if(tmp.size() > 1) {
+			if(Token.count(tmp)) {
+				token_text.push_back(Token[tmp][0]);
+				return true;
+			}
+			else {token_text.push_back(-1); return false;}
+		}
+		return true;
+	}
+	bool token_decode(const String& text, std::vector<int>& token_text, const std::set<Char>& Punc) {
 		//将文本词汇变为token序列
+		bool normal = true;
 		int siz = (int)text.size();
 		String cur;
 		for(int i = 0; i < siz; i ++) {
 			cur += text[i];
-			if(Punc.count(text[i]))
-				cur.clear();
-			if(Token.count(cur)) {
-				token_text.push_back(Token[cur][0]);
-				cur.clear();
+			if(Punc.count(text[i])){
+				cur.pop_back();
+				normal &= translate(cur, token_text);
 			}
 		}
+		return normal;
 	}
     void import_token(const json& tokens) {
         if(tokens.is_null()) return;

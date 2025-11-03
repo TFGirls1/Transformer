@@ -16,6 +16,9 @@ int main() {
     clock_t start_time = clock();
     json tokens;
     read_token(tokens);
+    std::ofstream prevo("data/prev_tokens.json", std::ios::out | std::ios::trunc);
+    prevo << std::setw(4) << tokens << std::endl;
+    prevo.close();
     BPE bpe;
     bpe.import_token(tokens);
     std::ifstream punc_f("materials/punc.txt");
