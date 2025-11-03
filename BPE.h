@@ -4,7 +4,7 @@
 class BPE {
 private:
     std::map<String, int> Freq; //subword的频率
-    std::set<String> Words;
+    std::map<String, int> Words;
     std::map<String, std::vector<String>> Subword;
 
     // 辅助函数：将 std::string (UTF-8) 转换为 String (UTF-32)
@@ -29,13 +29,13 @@ public:
 			cur += text[i];
 			if(Punc.count(text[i])) {
 				cur.pop_back();
-				Words.insert(cur);
+				Words[cur] ++;
 				cur.clear();
 			}
 		}
 		if(cur.size()) {
 			if(Punc.count(cur.back())) cur.pop_back();
-			if(cur.size()) Words.insert(cur);
+			if(cur.size()) Words[cur] ++;
 		}
 	}
 	/*
@@ -54,7 +54,7 @@ public:
 		
 	*/
 	void get_stats() {
-		for(auto word: Words) {
+		for(auto [word, count]: Words) {
 			Subword[word].clear();
 			int siz = (int)word.size();
 			for(int i = 0; i < siz; i ++) {
@@ -63,7 +63,7 @@ public:
 				if(i == siz - 1) tmp += Emp;
 
 				Subword[word].push_back(tmp);
-				Freq[tmp] ++;
+				Freq[tmp] += count;
 			}
 		}
 	}
@@ -75,7 +75,7 @@ public:
 	}
 	std::map< std::pair<String, String>, int> get_pairs() {
 		std::map< std::pair<String, String>, int> pairs;
-		for(auto word: Words) {
+		for(auto [word, count]: Words) {
 			int siz = (int)Subword[word].size();
 			for(int i = 0; i < siz - 1; i ++) {
 				pairs[{Subword[word][i], Subword[word][i + 1]}] ++;
@@ -95,15 +95,15 @@ public:
 	}
 	void merge_pair(const std::pair<String, String>& Subpair) {
 		//记录合并操作
-		for(auto word: Words) {
+		for(auto [word, count]: Words) {
 			for(int i = 0; i < (int)Subword[word].size() - 1; i ++) {
 				if(std::make_pair(Subword[word][i], Subword[word][i + 1]) == Subpair) {
 					String New_Subword = Subpair.first + Subpair.second;
 					Subword[word][i] = New_Subword;
 					Subword[word].erase(Subword[word].begin() + i + 1);
-					Freq[New_Subword] ++;
-					Freq[Subpair.first] --;
-					Freq[Subpair.second] --;
+					Freq[New_Subword] += count;
+					Freq[Subpair.first] -= count;
+					Freq[Subpair.second] -= count;
 					if(!Freq[Subpair.first]) Freq.erase(Subpair.first);
 					if(!Freq[Subpair.second]) Freq.erase(Subpair.second);
 				}
@@ -183,4 +183,14 @@ public:
         }
         return tokens;
     }
+	void import_pairs(const json& pairs_json) {
+		if(pairs_json.is_null()) return;
+		for (auto& [key_utf8, value] : pairs_json.items()) {
+			// 从 UTF-8 (json string) 转换为 String (UTF-32)
+			String key = UnivStr::from_utf8(key_utf8);
+			if(value.is_array()) {
+				Freq[key] = static_cast<int>(value[0]);
+			}
+		}
+	}
 };

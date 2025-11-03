@@ -35,10 +35,6 @@ int main() {
     }
     punc_f.close();
     std::ifstream text_f("materials/text.txt");
-    if(!text_f.is_open()){
-        std::cerr << "无法打开 materials/text.txt\n";
-        return 1;
-    }
 
     int t = 3000;
     String para;
@@ -54,10 +50,6 @@ int main() {
         bpe.import_token(current_tokens);
 
         std::ofstream o("data/tokens.json", std::ios::out | std::ios::trunc);
-        if(!o.is_open()){
-            std::cerr << "无法打开 data/tokens.json 进行写入\n";
-            continue; // 无法写入时跳过此段的训练保存
-        }
         /*删*/
         bool Continue = bpe.train_BPE(para, Punc);
         std::cerr << bpe.Amount_Subword() << " subwords trained.\n";    
@@ -65,6 +57,9 @@ int main() {
         json a = bpe.export_token();
         o << std::setw(4) << a << std::endl;
         o.close();
+        std::ofstream save("data/tokens.json.old", std::ios::out | std::ios::trunc);
+        save << std::setw(4) << current_tokens << std::endl;
+        save.close();
         /*输出json */
         if(text_f.eof()) {
             break;
