@@ -46,8 +46,6 @@ int main() {
         if(para.empty()) {t ++; continue;}
         std::cerr << "Reading paragraph...\n";
         std::cerr << "Training on a paragraph of size " << para.size() << ".\n";
-        
-        // 重新读取 tokens（read_token 会自己打开文件）
         json current_tokens;
         read_token(current_tokens);
         bpe.import_token(current_tokens);
