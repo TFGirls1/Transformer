@@ -1,4 +1,5 @@
-#include "BPE.h"
+#pragma once
+#include<bits/stdc++.h>
 struct Matrix {
     std::vector< std::vector<double> > data;
     int rows, cols;
@@ -49,19 +50,16 @@ struct Matrix {
             }
         }
     }
-};
-class Transformer {
-private:
-    using Token_Mat = std::array<Matrix, 3>;
-    std::map<String, int> To_Idx;
-    std::map<int, String> To_Word;
-public:
-    void import_token_from_json(const json& tokens) {
-        for(auto& [key_utf8, value] : tokens.items()) {
-            String key = UnivStr::from_utf8(key_utf8);
-            To_Idx[key] = value[0];
-            To_Word[value[0]] = key;
+    Matrix operator+(const Matrix& b) {
+        if(rows != b.rows || cols != b.cols) {
+            throw std::invalid_argument("Matrix dimensions do not match for addition.");
         }
+        Matrix tmp = *this;
+        for(int i = 0; i < rows; i ++) {
+            for(int j = 0; j < cols; j ++) {
+                tmp[i][j] += b.data[i][j];
+            }
+        }
+        return tmp;
     }
-    
 };
